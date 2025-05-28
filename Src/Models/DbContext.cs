@@ -1,4 +1,7 @@
- using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using GradingApp.Models;
+// using GradingApp.Models.Grade;
+// using Grade = GradingApp.Models.Grade;
 
 namespace GradingApp.Models
 {
@@ -11,12 +14,11 @@ namespace GradingApp.Models
 
         public GradingAppContext()
         {
-            var path = Environment.CurrentDirectory;
+            var currentDirectory = Environment.CurrentDirectory;
+            var path = $"{currentDirectory}/Data";
             DbPath = System.IO.Path.Join(path, "grading_app.db");
         }
 
-        // The following configures EF to create a Sqlite database file in the
-        // special "local" folder for your platform.
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite($"Data Source={DbPath}");
     }    

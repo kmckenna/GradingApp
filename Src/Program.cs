@@ -16,7 +16,7 @@ namespace GradingApp
             using var db = new GradingAppContext();
 
             // Note: This sample requires the database to be created before running.
-            // Console.WriteLine($"Database path: {db.DbPath}.");
+            Console.WriteLine($"Database path: {db.DbPath}.");
 
             Console.WriteLine("=========================================");
             Console.WriteLine("Welcome to the Grading App!");
@@ -36,10 +36,10 @@ namespace GradingApp
                 {
                     await AssignGradeToStudent(db);
                 }
-                // else if (input == "3")
-                // {
-                //     GetStudentAverageGrade(db);
-                // }
+                else if (input == "3")
+                {
+                    await GetStudentAverageGrade(db);
+                }
                 else if (input == "4")
                 {
                     await DisplayStudentsAndGrades(db);
@@ -105,7 +105,8 @@ namespace GradingApp
 
         public static async Task AssignGradeToStudent(GradingAppContext db)
         {
-            // DisplayStudentsAndGrades(db, false);
+            await DisplayStudentsAndGrades(db, false);
+
             Console.Write("Enter student ID: ");
             string? studentIdInput = Console.ReadLine();
             if (studentIdInput == null) {
@@ -126,7 +127,6 @@ namespace GradingApp
                 return;
             }
 
-                    
             Console.WriteLine($"Found student: {student.FirstName} {student.LastName} (ID: {student.StudentId})");
 
             Console.Write("Enter subject: ");
@@ -173,20 +173,44 @@ namespace GradingApp
                 
         }
 
-        // public static void GetStudentAverageGrade(GradingAppContext db)
-        // {
-        //     DisplayStudentsAndGrades(db, false);
-        //     Console.Write("Enter student ID: ");
-        //     int studentId = int.Parse(Console.ReadLine() ?? string.Empty);
-        //     Student student = students[studentId - 1]; // Assuming studentId starts from 1
+        public static async Task GetStudentAverageGrade(GradingAppContext db)
+        {
+            await DisplayStudentsAndGrades(db, false);
+
+            Console.Write("Enter student ID: ");
+            string? studentIdInput = Console.ReadLine();
+            if (studentIdInput == null) {
+                Console.WriteLine("Student ID cannot be empty. Please try again.");
+                return;
+            }
+
+            int studentId = int.Parse(studentIdInput);
             
-        //     Console.WriteLine($"Student ID: {student.Id}, Name: {student.Name}");
-        //     foreach (var grade in student.Grades)
-        //     {
-        //         Console.WriteLine($"  Subject: {grade.Subject}, Score: {grade.Score}");
-        //     }
+            Console.WriteLine("Querying for a student");
+            var student = await db.Students
+                .OrderBy(b => b.StudentId)
+                .FirstAsync();
+
+            if (student == null || student.StudentId != studentId)
+            {
+                Console.WriteLine($"No student found with ID {studentId}. Please try again.");
+                return;
+            }
+            Console.WriteLine($"Found student: {student.FirstName} {student.LastName} (ID: {student.StudentId})");
+            if (student.Grades.Count == 0)
+            {
+                Console.WriteLine($"No grades available for student {student.FirstName} {student.LastName}.");
+                return;
+            }
+            Console.WriteLine("Grades:");
+            foreach (var grade in student.Grades)
+            {
+                Console.WriteLine($"  Subject: {grade.Subject}, Score: {grade.Score}");
+            }
+            double average = student.Grades.Average(g => g.Score);
+            Console.WriteLine($"Average grade for student {student.FirstName} {student.LastName} (ID: {student.StudentId}) is: {average:F2}");
             
-        // }
+        }
 
         // public static void GetStudentGrades(GradingAppContext db)
         // {
