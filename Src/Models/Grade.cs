@@ -14,5 +14,5 @@ namespace GradingApp.Models
         public int Score { get; set; }
         public DateOnly DateTaken { get; set; }
         public int StudentId { get; set; }
-    }    
+    }
 }
