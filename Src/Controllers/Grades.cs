@@ -75,7 +75,7 @@ namespace GradingApp.Controllers
             foreach (var student in students)
             {
 
-                Console.WriteLine($"  Name: {student.FirstName} {student.LastName} (StudentID: {student.StudentId})");
+                Console.WriteLine($"Name: {student.FirstName} {student.LastName} (StudentID: {student.StudentId})");
                 if (showGrades == true)
                 {
                     Console.WriteLine("  Grades:");
@@ -90,9 +90,11 @@ namespace GradingApp.Controllers
                             Console.WriteLine($"    Subject: {grade.Subject} - {grade.Score} ({grade.DateTaken.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)})");
                         }
                     }
+                    Console.WriteLine();
                 }
+                
             }
-            Console.WriteLine("");
+            Console.WriteLine();
         }
     }    
 }

@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using GradingApp.Models;
-// using GradingApp.Models.Grade;
-// using Grade = GradingApp.Models.Grade;
 
 namespace GradingApp.Models
 {
@@ -12,11 +10,10 @@ namespace GradingApp.Models
 
         public string DbPath { get; }
 
-        public GradingAppContext()
+        public GradingAppContext(string databasePath)
         {
-            var currentDirectory = Environment.CurrentDirectory;
-            var path = $"{currentDirectory}/Data";
-            DbPath = System.IO.Path.Join(path, "grading_app.db");
+            Console.WriteLine($"Database path: {databasePath}");
+            DbPath = databasePath;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

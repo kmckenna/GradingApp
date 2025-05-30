@@ -19,7 +19,7 @@ namespace GradingApp.Helpers
             FieldFormat = fieldFormat;
 
             IsValid = false;
-            ErrorMessage = string.Empty;
+            ErrorMessage = "    ";
 
         }
     }
@@ -30,13 +30,22 @@ namespace GradingApp.Helpers
         public static ConsoleInput IsInputValid(string fieldName, string? fieldType, string? fieldFormat)
         {
             ConsoleInput consoleInput = new(fieldName, fieldType, fieldFormat);
-
+            Console.WriteLine("=========================================");
             Console.Write($"Enter {fieldName}: ");
-            consoleInput.Input = Console.ReadLine()?.Trim() ?? string.Empty;
+            string rawInput = Console.ReadLine() ?? string.Empty;
+            consoleInput.Input = rawInput.Trim();
+
+            // Console.WriteLine();
+            
+            if (string.IsNullOrEmpty(consoleInput.Input))
+            {
+                consoleInput.ErrorMessage += $"{fieldName} cannot be empty or whitespace.";
+                return consoleInput;
+            }
 
             if (string.IsNullOrEmpty(consoleInput.Input))
             {
-                consoleInput.ErrorMessage = $"{fieldName} cannot be empty.";
+                consoleInput.ErrorMessage += $"{fieldName} cannot be empty.";
                 return consoleInput;
             }
 
@@ -44,7 +53,7 @@ namespace GradingApp.Helpers
             {
                 if (!int.TryParse(consoleInput.Input, out int IntInput) || IntInput <= 0)
                 {
-                    consoleInput.ErrorMessage = $"{fieldName} must be a valid integer greater than 0.";
+                    consoleInput.ErrorMessage += $"{fieldName} must be a valid integer greater than 0.";
                     return consoleInput;
                 }
                 consoleInput.IntInput = IntInput;
@@ -53,7 +62,7 @@ namespace GradingApp.Helpers
             {
                 if (!DateOnly.TryParseExact(consoleInput.Input, fieldFormat, out DateOnly DateOnlyInput))
                 {
-                    consoleInput.ErrorMessage = $"{fieldName} must be a valid date in the format {fieldFormat}.";
+                    consoleInput.ErrorMessage += $"{fieldName} must be a valid date in the format {fieldFormat}.";
                     return consoleInput;
                 }
                 consoleInput.DateOnlyInput = DateOnlyInput;
@@ -61,6 +70,7 @@ namespace GradingApp.Helpers
 
 
             consoleInput.IsValid = true;
+
             return consoleInput;
 
         }
