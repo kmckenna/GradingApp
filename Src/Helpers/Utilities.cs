@@ -39,13 +39,13 @@ namespace GradingApp.Helpers
             
             if (string.IsNullOrEmpty(consoleInput.Input))
             {
-                consoleInput.ErrorMessage += $"{fieldName} cannot be empty or whitespace.";
+                consoleInput.ErrorMessage += $"{fieldName} cannot be empty or whitespace. Please try again.";
                 return consoleInput;
             }
 
             if (string.IsNullOrEmpty(consoleInput.Input))
             {
-                consoleInput.ErrorMessage += $"{fieldName} cannot be empty.";
+                consoleInput.ErrorMessage += $"{fieldName} cannot be empty. Please try again.";
                 return consoleInput;
             }
 
@@ -53,7 +53,7 @@ namespace GradingApp.Helpers
             {
                 if (!int.TryParse(consoleInput.Input, out int IntInput) || IntInput <= 0)
                 {
-                    consoleInput.ErrorMessage += $"{fieldName} must be a valid integer greater than 0.";
+                    consoleInput.ErrorMessage += $"{fieldName} must be a valid integer greater than 0. Please try again.";
                     return consoleInput;
                 }
                 consoleInput.IntInput = IntInput;
@@ -62,7 +62,7 @@ namespace GradingApp.Helpers
             {
                 if (!DateOnly.TryParseExact(consoleInput.Input, fieldFormat, out DateOnly DateOnlyInput))
                 {
-                    consoleInput.ErrorMessage += $"{fieldName} must be a valid date in the format {fieldFormat}.";
+                    consoleInput.ErrorMessage += $"{fieldName} must be a valid date in the format {fieldFormat}. Please try again.";
                     return consoleInput;
                 }
                 consoleInput.DateOnlyInput = DateOnlyInput;

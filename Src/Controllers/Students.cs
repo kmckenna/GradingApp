@@ -42,6 +42,87 @@ namespace GradingApp.Controllers
             db.Add(new Student { FirstName = firstName, LastName = lastName });
             await db.SaveChangesAsync();
         }
+        public static async Task UpdateStudent(GradingAppContext db)
+        {
+            // Display all students
+            await DisplayStudentsAndGrades(db, false);
+
+            consoleInput = Utilities.IsInputValid("Student ID", "int", "");
+            if (!consoleInput.IsValid)  
+            {
+                Console.WriteLine(consoleInput.ErrorMessage);
+                return;
+            }
+            int studentId = consoleInput.IntInput ?? 0;
+
+            // Validate student ID
+            var student = await GetStudentById(db, studentId, true, false);
+            
+            if (student == null)
+            {
+                Console.WriteLine($"No student found with ID {studentId}. Please try again.");
+                return;
+            }
+
+            // Prompt for new details
+            consoleInput = Utilities.IsInputValid("New First Name", "string", "");
+            if (!consoleInput.IsValid) 
+            {
+                Console.WriteLine(consoleInput.ErrorMessage);
+                return;
+            }
+            string? newFirstName = consoleInput.Input;
+
+            consoleInput = Utilities.IsInputValid("New Last Name", "string", "");
+            if (!consoleInput.IsValid) 
+            {
+                Console.WriteLine(consoleInput.ErrorMessage);
+                return;
+            }
+            string? newLastName = consoleInput.Input;
+
+            if (string.IsNullOrWhiteSpace(newFirstName) || string.IsNullOrWhiteSpace(newLastName))
+            {
+                Console.WriteLine("First name and last name cannot be empty. Please try again.");
+                return;
+            }
+
+            // Update
+            Console.WriteLine($"Updating student ID {studentId} to: {newFirstName} {newLastName}");
+            student.FirstName = newFirstName;
+            student.LastName = newLastName;
+            await db.SaveChangesAsync();
+        }
+        public static async Task GetStudentAverageGrade(GradingAppContext db)
+        {
+            await DisplayStudentsAndGrades(db, false);
+
+            consoleInput = Utilities.IsInputValid("Student ID", "int", "");
+            if (!consoleInput.IsValid)  
+            {
+                Console.WriteLine(consoleInput.ErrorMessage);
+                return;
+            }
+            int studentId = consoleInput.IntInput ?? 0;
+
+            // Validate student ID
+            var student = await GetStudentById(db, studentId, true, false);
+            
+            if (student == null)
+            {
+                Console.WriteLine($"No student found with ID {studentId}. Please try again.");
+                return;
+            }
+
+            if (student.Grades.Count == 0)
+            {
+                Console.WriteLine($"No grades available for student {student.FirstName} {student.LastName}.");
+                return;
+            }
+
+            double average = student.Grades.Average(g => g.Score);
+            Console.WriteLine($"Average grade for student {student.FirstName} {student.LastName} (ID: {student.StudentId}) is: {average:F2}");
+        }       
         public static async Task<Student?> GetStudentById(GradingAppContext db, int studentId, bool showConsole = false, bool showGrades = false)
         {
             // errors will still be shown in the console
@@ -52,11 +133,10 @@ namespace GradingApp.Controllers
 
             if (student == null)
             {
-                Console.WriteLine($"\nNo student found with ID {studentId}.");
-                Console.WriteLine("Please try again with a valid student ID.");
+                Console.WriteLine($"\nNo student found with ID {studentId}. Please try again.");
                 return student;
             }
-            
+
             if (showConsole)
             {
                 Console.WriteLine($"\nStudent: {student.FirstName} {student.LastName} (ID: {student.StudentId})");
