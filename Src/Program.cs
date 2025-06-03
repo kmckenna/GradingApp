@@ -22,16 +22,16 @@ namespace GradingApp
         private static async Task Main(string[] args)
         {
 
-            string databasePath = databasePath.ConfigureDatabase();
+            string databasePath = Utilities.ConfigureDatabase();
             if (string.IsNullOrEmpty(databasePath))
             {
-                Console.WriteLine("Database path is not configured. Please set environment variables.");
+                Console.WriteLine("Database configuration is not properly configured. Please set environment variables.");
                 return;
             }
             using var db = new GradingAppContext(databasePath);
 
             // Seed the database with initial data if empty
-            await Data.SeedDatabase(db);
+            await Utilities.SeedDatabase(db);
 
             // Display the header
             UI.DisplayHeader();
@@ -48,34 +48,34 @@ namespace GradingApp
                 {
                     await Students.AddStudent(db);
                 }
-                else if (input == "2")
-                {
-                    await Students.UpdateStudent(db);
-                }
-                else if (input == "3")
-                {
-                    await Grades.AddGradeToStudent(db);
-                }
-                else if (input == "4")
-                {
-                    await Grades.DeleteGradeFromStudent(db);
-                }
-                else if (input == "5")
-                {
-                    await Students.GetStudentAverageGrade(db);
-                }
-                else if (input == "6")
-                {
-                    await Grades.DeleteStudent(db);
-                }                   
-                else if (input == "7")
-                {
-                    await Grades.DisplayAllStudentsAndGrades(db);
-                }
-                else if (input == "8")
-                {
-                    await Students.DisplayAllStudentsAverageGrades(db);
-                }
+                // else if (input == "2")
+                // {
+                //     await Students.UpdateStudent(db);
+                // }
+                // else if (input == "3")
+                // {
+                //     await Grades.AddGradeToStudent(db);
+                // }
+                // else if (input == "4")
+                // {
+                //     await Grades.DeleteGradeFromStudent(db);
+                // }
+                // else if (input == "5")
+                // {
+                //     await Students.GetStudentAverageGrade(db);
+                // }
+                // else if (input == "6")
+                // {
+                //     await Grades.DeleteStudent(db);
+                // }                   
+                // else if (input == "7")
+                // {
+                //     await Grades.DisplayAllStudentsAndGrades(db);
+                // }
+                // else if (input == "8")
+                // {
+                //     await Students.DisplayAllStudentsAverageGrades(db);
+                // }
                 // else if (input == "3")
                 // {
                 //     await Grades.GetStudentAverageGrade(db);

@@ -1,5 +1,6 @@
 
 using System.Globalization;
+using GradingApp.Controllers;
 using GradingApp.Models;
 using GradingApp.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +12,13 @@ namespace GradingApp.Controllers
         private static readonly CultureInfo cultureInfo = new("en-US");
         private static ConsoleInput consoleInput;
 
+
+
         public static async Task AddStudent(GradingAppContext db)
         {
             // Prompt for student details
             Console.WriteLine("Adding a new student...");
-            
+
             consoleInput = Utilities.IsInputValid("Student First Name", "string", "");
             if (!consoleInput.IsValid)
             {
@@ -25,7 +28,7 @@ namespace GradingApp.Controllers
             string? firstName = consoleInput.Input;
 
             consoleInput = Utilities.IsInputValid("Student Last Name", "string", "");
-            if (!consoleInput.IsValid) 
+            if (!consoleInput.IsValid)
             {
                 Console.WriteLine(consoleInput.ErrorMessage);
                 return;
@@ -54,6 +57,11 @@ namespace GradingApp.Controllers
                 return;
             }
             int studentId = consoleInput.IntInput ?? 0;
+            if (studentId <= 0)
+            {
+                Console.WriteLine("Invalid student ID. Please try again.");
+                return;
+            }
 
             // Validate student ID
             var student = await GetStudentById(db, studentId, true, false);
@@ -98,7 +106,7 @@ namespace GradingApp.Controllers
             await DisplayStudentsAndGrades(db, false);
 
             consoleInput = Utilities.IsInputValid("Student ID", "int", "");
-            if (!consoleInput.IsValid)  
+            if (!consoleInput.IsValid)
             {
                 Console.WriteLine(consoleInput.ErrorMessage);
                 return;
@@ -107,7 +115,7 @@ namespace GradingApp.Controllers
 
             // Validate student ID
             var student = await GetStudentById(db, studentId, true, false);
-            
+
             if (student == null)
             {
                 Console.WriteLine($"No student found with ID {studentId}. Please try again.");
@@ -122,6 +130,7 @@ namespace GradingApp.Controllers
 
             double average = student.Grades.Average(g => g.Score);
             Console.WriteLine($"Average grade for student {student.FirstName} {student.LastName} (ID: {student.StudentId}) is: {average:F2}");
+            return;
         }       
         public static async Task<Student?> GetStudentById(GradingAppContext db, int studentId, bool showConsole = false, bool showGrades = false)
         {
@@ -162,7 +171,7 @@ namespace GradingApp.Controllers
 
         public static async Task AssignGradeToStudent(GradingAppContext db)
         {
-            await Grades.DisplayStudentsAndGrades(db, false);
+            await DisplayStudentsAndGrades(db, false);
 
             consoleInput = Utilities.IsInputValid("Student ID", "int", "");
             if (!consoleInput.IsValid)  
@@ -171,6 +180,11 @@ namespace GradingApp.Controllers
                 return;
             }
             int studentId = consoleInput.IntInput ?? 0;
+            if (studentId <= 0)
+            {
+                Console.WriteLine("Invalid student ID. Please try again.");
+                return;
+            }
 
             // Validate student ID
             var student = await GetStudentById(db, consoleInput.IntInput ?? 0, true, false);
@@ -180,49 +194,44 @@ namespace GradingApp.Controllers
                 Console.WriteLine($"No student found with ID {studentId}. Please try again.");
                 return;
             }
-
-            // Console.WriteLine($"Found student: {student.FirstName} {student.LastName} (ID: {student.StudentId})");
-            consoleInput = Utilities.IsInputValid("Subject", "string", "");
-            if (!consoleInput.IsValid) 
-            {
-                Console.WriteLine(consoleInput.ErrorMessage);
-                return;
-            }
-            string? subject = consoleInput.Input;
-
-            consoleInput = Utilities.IsInputValid("Score", "int", "");
-            if (!consoleInput.IsValid) 
-            {
-                Console.WriteLine(consoleInput.ErrorMessage);
-                return;
-            }
-            int? score = consoleInput.IntInput            
-            if (score < 0 || score > 100)
-            {
-                Console.WriteLine("Score must be between 0 and 100. Please try again.");
-                return;
-            }
-
-            consoleInput = Utilities.IsInputValid("Date Taken (MM/DD/YYYY)", "date", "");
-            if (!consoleInput.IsValid) 
-            {
-                Console.WriteLine(consoleInput.ErrorMessage);
-                return;
-            }
-            dateOnly? dateTaken = consoleInput.DateOnlyInput;
-            if (dateTaken > DateOnly.FromDateTime(DateTime.Now))
-            {
-                Console.WriteLine("Date cannot be in the future. Please try again.");
-                return;
-            }
-
-            Console.WriteLine($"\nAssigning grade ({subject} - {score} on {dateTaken}) to student: {student.FirstName} {student.LastName}");
-            // Add the grade to the student's grades
-            student.Grades.Add(
-                new Grade { Subject = subject, Score = score, DateTaken = dateTaken });
-            await db.SaveChangesAsync();
+            await Grades.AddGrade(db, student);
 
         }
 
+        public static async Task DisplayStudentsAndGrades(GradingAppContext db, bool showGrades = true)
+        {
+            Console.WriteLine("Displaying all students and their grades:");
+            var students = await db.Students
+                .Include(s => s.Grades)
+                .OrderBy(s => s.LastName)
+                .ToListAsync();
+
+            // int numberOfStudents = students.Length;
+            // Console.WriteLine($"Number of students: {numberOfStudents}");
+            if (students.Count == 0)
+            {
+                Console.WriteLine("No students found. Enter option 0 to seed data or enter option 1 to add a student.");
+                return;
+            }
+            Console.WriteLine("Students:");
+            foreach (var student in students)
+            {
+                Console.WriteLine($"Name: {student.FirstName} {student.LastName} (StudentID: {student.StudentId})");
+                if (showGrades == true)
+                {
+                    if (student.Grades.Count == 0)
+                    {
+                        Console.WriteLine("No grades available.");
+                    }
+                    else
+                    {
+                        Grades.DisplayAllGradesByStudent(student);
+                    }
+                    Console.WriteLine();
+                }
+
+            }
+            Console.WriteLine();
+        }
     }
 }
